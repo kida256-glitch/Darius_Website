@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services – Eikon Graphē</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --black: #0a0906;
+    --deep: #120f0a;
+    --charcoal: #1e1a14;
+    --graphite: #2e2820;
+    --warm-dark: #3d3025;
+    --brown-mid: #6b4f2e;
+    --brown: #8b6340;
+    --gold: #c9973d;
+    --gold-light: #e8c06a;
+    --cream: #f5ead8;
+    --ivory: #faf5ec;
+    --white: #ffffff;
+    --text-muted: #a89070;
+    --border: rgba(201,151,61,0.25);
+    --border-strong: rgba(201,151,61,0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ANIMATED BACKGROUND */
+  .animated-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .animated-bg svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .bg-path {
+    stroke: var(--gold);
+    stroke-width: 0.5;
+    fill: none;
+    opacity: 0.03;
+    animation: pathFlow 25s ease-in-out infinite;
+  }
+
+  @keyframes pathFlow {
+    0%, 100% { 
+      stroke-dashoffset: 0;
+      opacity: 0.03;
+    }
+    50% { 
+      stroke-dashoffset: 100;
+      opacity: 0.08;
+    }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(10,9,6,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--cream); font-weight: 400; }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active { color: var(--gold); }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 1.5px;
+    background: var(--gold);
+  }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,9,6,0.98);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu a {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    color: var(--cream);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+  }
+
+  .mobile-close {
+    position: absolute;
+    top: 1.5rem; right: 2rem;
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 2rem;
+    cursor: pointer;
+  }
+
+  /* MAIN */
+  main {
+    position: relative;
+    min-height: 100vh;
+    padding: 8rem 2rem 4rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    animation: fadeUp 1s ease both;
+  }
+
+  .page-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 0.06em;
+  }
+
+  .page-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-style: italic;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* SERVICES GRID */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+
+  .service-card {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--graphite) 100%);
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+
+  .service-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .service-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .service-icon {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    color: var(--gold);
+  }
+
+  .service-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+
+  .service-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--cream);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+
+  .service-features {
+    list-style: none;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .service-features li {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .service-features li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    main { padding: 6rem 1.5rem 3rem; }
+    .services-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 5rem 1.2rem 2rem; }
+    .services-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .service-card { padding: 2.5rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<div class="animated-bg">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice"></svg>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">EIKON <span>GRAPHĒ</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="orders.html">Orders</a></li>
+    <li><a href="services.html" class="active">Services</a></li>
+    <li><a href="earners.html">Earners</a></li>
+  </ul>
+  <button class="hamburger" onclick="document.getElementById('mobileMenu').classList.add('open')">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="document.getElementById('mobileMenu').classList.remove('open')">&times;</button>
+  <a href="index.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Home</a>
+  <a href="about.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">About</a>
+  <a href="gallery.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Gallery</a>
+  <a href="orders.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Orders</a>
+  <a href="services.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Services</a>
+  <a href="earners.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Earners</a>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="container">
+    <div class="page-header">
+      <p class="page-eyebrow">What We Offer</p>
+      <h1 class="page-title">Our Services</h1>
+      <p class="page-subtitle">Comprehensive portrait services tailored to honor your vision</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">✦</div>
+        <h3 class="service-title">Individual Portraits</h3>
+        <p class="service-desc">Timeless graphite portraits that capture the essence and character of a single subject with meticulous attention to detail.</p>
+        <ul class="service-features">
+          <li>High-resolution reference consultation</li>
+          <li>Multiple size options available</li>
+          <li>Progress updates throughout</li>
+          <li>Certificate of authenticity</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">✦</div>
+        <h3 class="service-title">Family Portraits</h3>
+        <p class="service-desc">Preserve your family legacy with a composed portrait that honors the bonds and relationships between loved ones.</p>
+        <ul class="service-features">
+          <li>Multiple subject composition</li>
+          <li>Background customization</li>
+          <li>Flexible arrangement options</li>
+          <li>Heirloom-quality presentation</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">✦</div>
+        <h3 class="service-title">Memorial Portraits</h3>
+        <p class="service-desc">Honor the memory of departed loved ones with reverent portraits that celebrate their life and preserve their likeness.</p>
+        <ul class="service-features">
+          <li>Sensitive photo restoration</li>
+          <li>Compassionate consultation</li>
+          <li>Dignified representation</li>
+          <li>Expedited timeline available</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">✦</div>
+        <h3 class="service-title">Pet Portraits</h3>
+        <p class="service-desc">Celebrate your beloved companions with portraits that capture their unique personality and the joy they bring.</p>
+        <ul class="service-features">
+          <li>All breeds and species</li>
+          <li>Action or posed compositions</li>
+          <li>Natural habitat settings</li>
+          <li>Gift packaging available</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">✦</div>
+        <h3 class="service-title">Corporate Commissions</h3>
+        <p class="service-desc">Professional portraits for executives, founders, and teams that convey authority, approachability, and distinction.</p>
+        <ul class="service-features">
+          <li>Professional consultation</li>
+          <li>Bulk commission discounts</li>
+          <li>Consistent style across series</li>
+          <li>Corporate framing options</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">✦</div>
+        <h3 class="service-title">Custom Concepts</h3>
+        <p class="service-desc">Bring your unique vision to life with fully customized portrait concepts, compositions, and artistic interpretations.</p>
+        <ul class="service-features">
+          <li>Collaborative design process</li>
+          <li>Concept sketches provided</li>
+          <li>Unlimited revisions</li>
+          <li>Premium materials available</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// Animated background
+const svg = document.querySelector('.animated-bg svg');
+for (let i = 0; i < 30; i++) {
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const offset = i * 40;
+  const curve = i * 15;
+  path.setAttribute('d', `M${-200 + offset} ${-100 + curve} Q${200 + offset} ${200 + curve} ${600 + offset} ${400 + curve} T${1400 + offset} ${600 + curve}`);
+  path.setAttribute('class', 'bg-path');
+  path.setAttribute('stroke-dasharray', '10 20');
+  path.style.animationDelay = `${i * 0.3}s`;
+  path.style.opacity = 0.02 + (i * 0.002);
+  svg.appendChild(path);
+}
+</script>
+
+</body>
+</html>

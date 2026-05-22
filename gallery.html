@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery – Eikon Graphē</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+  :root {
+    --black: #0a0906;
+    --deep: #120f0a;
+    --charcoal: #1e1a14;
+    --graphite: #2e2820;
+    --warm-dark: #3d3025;
+    --brown-mid: #6b4f2e;
+    --brown: #8b6340;
+    --gold: #c9973d;
+    --gold-light: #e8c06a;
+    --cream: #f5ead8;
+    --ivory: #faf5ec;
+    --white: #ffffff;
+    --text-muted: #a89070;
+    --border: rgba(201,151,61,0.25);
+    --border-strong: rgba(201,151,61,0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* DOTTED SURFACE BACKGROUND */
+  #dotted-surface-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  nav, main, footer, .mobile-menu {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(10,9,6,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--cream); font-weight: 400; }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active { color: var(--gold); }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 1.5px;
+    background: var(--gold);
+  }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,9,6,0.98);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu a {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    color: var(--cream);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+  }
+
+  .mobile-close {
+    position: absolute;
+    top: 1.5rem; right: 2rem;
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 2rem;
+    cursor: pointer;
+  }
+
+  /* MAIN */
+  main {
+    position: relative;
+    min-height: 100vh;
+    padding: 8rem 2rem 4rem;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    animation: fadeUp 1s ease both;
+  }
+
+  .page-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 0.06em;
+  }
+
+  .page-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-style: italic;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* GALLERY GRID */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+
+  .gallery-item {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: var(--charcoal);
+    cursor: pointer;
+    transition: transform 0.4s ease;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-8px);
+  }
+
+  .gallery-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,9,6,0.9) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .gallery-item:hover::after {
+    opacity: 1;
+  }
+
+  .gallery-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--graphite) 100%);
+    transition: background-color 0.3s;
+  }
+
+  .gallery-item:hover .gallery-placeholder {
+    background: linear-gradient(135deg, var(--warm-dark) 0%, var(--brown-mid) 100%);
+  }
+
+  .gallery-upload-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--gold);
+    opacity: 0.6;
+  }
+
+  .gallery-placeholder-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .gallery-year {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    opacity: 0.5;
+  }
+
+  .gallery-info {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    right: 2rem;
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s;
+  }
+
+  .gallery-item:hover .gallery-info {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gallery-info h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold-light);
+    margin-bottom: 0.3rem;
+  }
+
+  .gallery-info p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--cream);
+    font-style: italic;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    main { padding: 6rem 1.5rem 3rem; }
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 5rem 1.2rem 2rem; }
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- DOTTED SURFACE BACKGROUND -->
+<div id="dotted-surface-container"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">EIKON <span>GRAPHĒ</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="gallery.html" class="active">Gallery</a></li>
+    <li><a href="orders.html">Orders</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="earners.html">Earners</a></li>
+  </ul>
+  <button class="hamburger" onclick="document.getElementById('mobileMenu').classList.add('open')">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="document.getElementById('mobileMenu').classList.remove('open')">&times;</button>
+  <a href="index.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Home</a>
+  <a href="about.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">About</a>
+  <a href="gallery.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Gallery</a>
+  <a href="orders.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Orders</a>
+  <a href="services.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Services</a>
+  <a href="earners.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Earners</a>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="container">
+    <div class="page-header">
+      <p class="page-eyebrow">Portfolio</p>
+      <h1 class="page-title">The Gallery</h1>
+      <p class="page-subtitle">Each portrait is approached as a legacy piece — timeless, intentional, and worthy of preservation.</p>
+    </div>
+
+    <div class="gallery-grid">
+      <!-- Gallery items - placeholders for now -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <div class="gallery-upload-icon">✦</div>
+          <p class="gallery-placeholder-text">Portrait commission<br>awaiting completion</p>
+          <p class="gallery-year">2026</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <div class="gallery-upload-icon">✦</div>
+          <p class="gallery-placeholder-text">Legacy piece<br>in progress</p>
+          <p class="gallery-year">2026</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <div class="gallery-upload-icon">✦</div>
+          <p class="gallery-placeholder-text">Commissioned work<br>coming soon</p>
+          <p class="gallery-year">2026</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <div class="gallery-upload-icon">✦</div>
+          <p class="gallery-placeholder-text">Portrait study<br>in development</p>
+          <p class="gallery-year">2026</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <div class="gallery-upload-icon">✦</div>
+          <p class="gallery-placeholder-text">Graphite portrait<br>upcoming</p>
+          <p class="gallery-year">2026</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <div class="gallery-upload-icon">✦</div>
+          <p class="gallery-placeholder-text">Commission slot<br>available</p>
+          <p class="gallery-year">2026</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Three.js Dotted Surface Background
+  (function() {
+    const container = document.getElementById('dotted-surface-container');
+    if (!container) return;
+
+    const SEPARATION = 150;
+    const AMOUNTX = 40;
+    const AMOUNTY = 60;
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    const fogColor = 0x0a0906; // Using your --black color
+    scene.fog = new THREE.Fog(fogColor, 2000, 10000);
+    scene.background = new THREE.Color(fogColor);
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      1,
+      10000,
+    );
+    camera.position.set(0, 355, 1220);
+
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(fogColor, 0);
+
+    container.appendChild(renderer.domElement);
+
+    // Create particles
+    const positions = [];
+    const colors = [];
+
+    // Create geometry for all particles
+    const geometry = new THREE.BufferGeometry();
+
+    // Use your gold color for the dots
+    const goldR = 201 / 255; // #c9973d
+    const goldG = 151 / 255;
+    const goldB = 61 / 255;
+
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+        const y = 0;
+        const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+
+        positions.push(x, y, z);
+        colors.push(goldR, goldG, goldB); // Use gold color
+      }
+    }
+
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    // Create material
+    const material = new THREE.PointsMaterial({
+      size: 8,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.6,
+      sizeAttenuation: true,
+    });
+
+    // Create points object
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
+
+    let count = 0;
+    let animationId = null;
+
+    // Animation function
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+
+      const positionAttribute = geometry.attributes.position;
+      const positionsArray = positionAttribute.array;
+
+      let i = 0;
+      for (let ix = 0; ix < AMOUNTX; ix++) {
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+          const index = i * 3;
+
+          // Animate Y position with sine waves
+          positionsArray[index + 1] =
+            Math.sin((ix + count) * 0.3) * 50 +
+            Math.sin((iy + count) * 0.5) * 50;
+
+          i++;
+        }
+      }
+
+      positionAttribute.needsUpdate = true;
+
+      renderer.render(scene, camera);
+      count += 0.1;
+    };
+
+    // Handle window resize
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Start animation
+    animate();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
